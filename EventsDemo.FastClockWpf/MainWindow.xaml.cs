@@ -10,7 +10,9 @@ namespace EventsDemo.FastClockWpf
     {
         public MainWindow()
         {
+
             InitializeComponent();
+            FastClock.FastClock.Instance.OneMinuteIsOver += FastClockOneMinuteIsOver;
         }
 
         private void MetroWindow_Initialized(object sender, EventArgs e)
@@ -32,25 +34,26 @@ namespace EventsDemo.FastClockWpf
 
         private void FastClockOneMinuteIsOver(object sender, DateTime fastClockTime)
         {
-           
+            TextBlockDate.Text = FastClock.FastClock.Instance.Time.ToShortDateString();
+            TextBlockTime.Text = FastClock.FastClock.Instance.Time.ToShortTimeString();
         }
 
         private void CheckBoxClockRuns_Click(object sender, RoutedEventArgs e)
         {
-            if(CheckBoxClockRuns.IsChecked.Value)
-            {
-                FastClock.FastClock.Instance.IsRunning = true;
+            SliderFactor.IsEnabled = !CheckBoxClockRuns.IsChecked.Value;
+            TextBoxFactor.IsEnabled = !CheckBoxClockRuns.IsChecked.Value;
+            ButtonSetTime.IsEnabled = !CheckBoxClockRuns.IsChecked.Value;
 
-                if (int.TryParse(TextBoxFactor.Text, out int factor))
-                {
-                    FastClock.FastClock.Instance.Factor = factor;
-                }
-                else
-                {
-                    TextBoxFactor.Text = FastClock.FastClock.Instance.Factor.ToString();
-                }              
+            if (CheckBoxClockRuns.IsChecked.Value)
+            {
+                int.TryParse(TextBoxFactor.Text, out int factor);
+                FastClock.FastClock.Instance.Factor = factor;
+                FastClock.FastClock.Instance.IsRunning = true;
             }
-            FastClock.FastClock.Instance.IsRunning = false;
+            else
+            {
+                FastClock.FastClock.Instance.IsRunning = false;
+            }
         }
 
         private void ButtonCreateView_Click(object sender, RoutedEventArgs e)

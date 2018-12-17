@@ -7,29 +7,47 @@ namespace EventsDemo.FastClock
     {
         #region Fields
 
-        public static FastClock _instance;
+        private static FastClock _instance;
         private DispatcherTimer _dispatcherTimer;
 
-        private event EventHandler<DateTime> OneMinuteIsOver;
+        public event EventHandler<DateTime> OneMinuteIsOver;
 
         #endregion
 
 
         #region Properties
 
-        public int Factor { get; set; }
+        public int Factor
+        {
+            set
+            {
+                if(value <= 60000 && value > 0)
+                _dispatcherTimer.Interval = TimeSpan.FromMilliseconds(60000 / value);
+            }
+
+        }
         public static FastClock Instance
         {
             get
             {
-                if(_instance == null)
+                if (_instance == null)
                 {
                     _instance = new FastClock();
                 }
                 return _instance;
-            } 
+            }
         }
-        public bool IsRunning { get; set; }
+        public bool IsRunning
+        {
+            get
+            {
+                return _dispatcherTimer.IsEnabled;
+            }
+            set
+            {
+                _dispatcherTimer.IsEnabled = value;
+            }
+        }
         public DateTime Time { get; set; }
 
 
@@ -41,25 +59,16 @@ namespace EventsDemo.FastClock
         {
             _dispatcherTimer = new DispatcherTimer();
             _dispatcherTimer.Tick += Timer_Tick;
-            _instance.OneMinuteIsOver += OnOneMinuteIsOver;
         }
 
         #endregion
-
+        
         #region Methods
-
-        public void OnOneMinuteIsOver(object sender, DateTime time)
-        {
-            while (IsRunning)
-            {
-                OneMinuteIsOver?.Invoke(this, time);
-            }
-        }
 
         private void Timer_Tick(object sender,EventArgs args)
         {
-            _dispatcherTimer.Interval = new TimeSpan(0,0,Factor);
-            _dispatcherTimer.Start();
+            Time = Time.AddMinutes(1);
+            OneMinuteIsOver?.Invoke(this, Time);
         }
         #endregion
     }
